@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: premium-car-care-backend
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      # Add your environment variables here
+      # DATABASE_URL: postgresql://user:password@db:5432/premium_car_care
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    # Uncomment when using database
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules
+
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: premium-car-care-db
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER:-carcare}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+  #     POSTGRES_DB: ${DB_NAME:-premium_car_care}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-carcare}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: unless-stopped
+
+# volumes:
+#   postgres_data:
