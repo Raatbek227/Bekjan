@@ -8,6 +8,33 @@ import { PageHeader } from "@/components/ui/page-header";
 import { adminService } from "@/services/admin-service";
 import { adminLinks } from "@/constants/admin-links";
 
+// Требуется для output: export в next.config.js
+export async function generateStaticParams() {
+  try {
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const response = await fetch(`${baseURL}/admin/products`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const data = await response.json();
+    const products = data.products || data.data || [];
+    
+    return products.map((product) => ({
+      id: String(product.id),
+    }));
+  } catch (error) {
+    console.error('Error fetching products for static generation:', error);
+    return [];
+  }
+}
+
 const emptyForm = {
   name: "",
   slug: "",
