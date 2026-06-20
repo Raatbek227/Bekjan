@@ -9,36 +9,35 @@ services:
     environment:
       NODE_ENV: production
       PORT: 5000
-      # Add your environment variables here
-      # DATABASE_URL: postgresql://user:password@db:5432/premium_car_care
+      # Используем одну общую строку DATABASE_URL, как это делает Render.
+      # db:5432 указывает на соседний контейнер с базой данных внутри сети Docker
+      DATABASE_URL: postgresql://${DB_USER:-carcare}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-premium_car_care}?schema=public
     ports:
       - "5000:5000"
     restart: unless-stopped
-    # Uncomment when using database
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
-    # volumes:
-    #   - ./backend:/app
-    #   - /app/node_modules
+    # Ждем, пока база данных полностью проверит свое здоровье (healthcheck) перед стартом бэка
+    depends_on:
+      db:
+        condition: service_healthy
 
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: premium-car-care-db
-  #   environment:
-  #     POSTGRES_USER: ${DB_USER:-carcare}
-  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-  #     POSTGRES_DB: ${DB_NAME:-premium_car_care}
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-carcare}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   restart: unless-stopped
+  db:
+    image: postgres:16-alpine
+    container_name: premium-car-care-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-carcare}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-premium_car_care}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Важное исправление: pg_isready должен явно проверять правильную базу данных
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:
