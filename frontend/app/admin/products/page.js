@@ -65,7 +65,7 @@ export default function AdminProductsPage() {
                     <td className="pr-6">{product.stock}</td>
                     <td className="pr-6">{product.isActive ? "Active" : "Inactive"}</td>
                     <td className="pr-6">
-                      <Button href={`/admin/products/${product.id}`} variant="secondary">Edit</Button>
+                      <Button href={`/admin/products/edit?id=${product.id}`} variant="secondary">Edit</Button>
                     </td>
                   </tr>
                 ))

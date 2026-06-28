@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { DashboardShell } from "@/layouts/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -21,10 +21,11 @@ const emptyForm = {
   isActive: false
 };
 
-export function AdminProductEditPage() {
+export function AdminProductEditPage({ productId }) {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const id = params?.id;
+  const id = productId || params?.id || searchParams.get("id");
   const [form, setForm] = useState(emptyForm);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +43,8 @@ export function AdminProductEditPage() {
 
   useEffect(() => {
     if (!id) {
+      setError("Product id is missing");
+      setLoading(false);
       return;
     }
 
@@ -75,6 +78,11 @@ export function AdminProductEditPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!id) {
+      setError("Product id is missing");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     setMessage(null);
@@ -252,7 +260,7 @@ export function AdminProductEditPage() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <Button type="button" variant="secondary" onClick={() => router.push('/admin/products')}>
+              <Button type="button" variant="secondary" onClick={() => router.push("/admin/products")}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saving}>

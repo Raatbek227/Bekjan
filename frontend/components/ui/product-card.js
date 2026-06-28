@@ -21,7 +21,7 @@ export function ProductCard({ product }) {
           <Star size={15} fill="currentColor" />
           {product.rating ?? "4.8"}
         </div>
-        <Link href={`/store/${product.slug}`} className="mt-2 block font-semibold transition hover:text-accent">
+        <Link href={`/store/product?slug=${product.slug}`} className="mt-2 block font-semibold transition hover:text-accent">
           {product.name}
         </Link>
         <p className="mt-1 text-sm text-muted">{product.description || "Premium automotive product."}</p>
