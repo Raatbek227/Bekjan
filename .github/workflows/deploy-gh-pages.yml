@@ -25,14 +25,10 @@ jobs:
       - name: Install root dependencies (monorepo)
         run: npm ci
 
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm ci
-
       - name: Build frontend (static export)
-        working-directory: ./frontend
         env:
           NEXT_PUBLIC_REPO_NAME: Bekjan
+          NEXT_PUBLIC_API_URL: https://car-project-jnle.onrender.com
         run: npm run build
 
       - name: Deploy to GitHub Pages

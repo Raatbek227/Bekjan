@@ -1,32 +1,40 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WishlistAction } from "@/components/ui/wishlist-action";
 import { catalogService } from "@/services/catalog-service";
 import { featuredProducts } from "@/constants/products";
 
-export const dynamic = "force-dynamic";
+function StoreProductContent() {
+  const searchParams = useSearchParams();
+  const slug = searchParams.get("slug");
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-async function getProduct(slug) {
-  try {
-    return await catalogService.getProduct(slug);
-  } catch {
-    return featuredProducts.find((item) => item.slug === slug) || null;
+  useEffect(() => {
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
+
+    catalogService
+      .getProduct(slug)
+      .then(setProduct)
+      .catch(() => {
+        setProduct(featuredProducts.find((item) => item.slug === slug) || null);
+      })
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return <div className="container-shell py-16 text-muted">Loading product...</div>;
   }
-}
 
-export async function generateMetadata({ params }) {
-  const product = await getProduct(params.slug);
-
-  return {
-    title: product?.name || "Product"
-  };
-}
-
-export default async function ProductPage({ params }) {
-  const product = await getProduct(params.slug);
   if (!product) {
-    notFound();
+    return <div className="container-shell py-16 text-muted">Product not found.</div>;
   }
 
   const category = product.category?.name || product.category || "Product";
@@ -81,14 +89,15 @@ export default async function ProductPage({ params }) {
             </div>
           </div>
         ) : null}
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {["Professional grade", "Stock tracking ready", "Related products ready"].map((item) => (
-            <div key={item} className="rounded-md border border-white/10 bg-white/5 p-4 text-sm text-muted">
-              {item}
-            </div>
-          ))}
-        </div>
       </div>
     </section>
+  );
+}
+
+export default function StoreProductPage() {
+  return (
+    <Suspense fallback={<div className="container-shell py-16 text-muted">Loading product...</div>}>
+      <StoreProductContent />
+    </Suspense>
   );
 }

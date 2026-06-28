@@ -65,7 +65,7 @@ export function BlogSection() {
                   <span>•</span>
                   <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
                 </div>
-                <Link href={`/blog/${post.slug}`} className="mt-3 text-lg font-semibold hover:text-accent transition">
+                <Link href={`/blog/post?slug=${post.slug}`} className="mt-3 text-lg font-semibold hover:text-accent transition">
                   {post.title}
                 </Link>
                 <p className="mt-2 flex-1 text-sm text-muted">{post.excerpt || post.content?.substring(0, 120)}</p>
